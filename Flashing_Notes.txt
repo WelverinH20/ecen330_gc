@@ -1,0 +1,11 @@
+For windows:
+
+In Power shell:
+1. usbipd bind --busid {esp32 port}
+2. usbipd attach --wsl --busid {esp32 port}
+
+In WSL:
+1. Verify youre in propper Directory
+2. source ../myidfwin.sh
+3. sudo chmod 666 /dev/ttyUSB0
+4. idf.py flash -p /dev/ttyUSB03
