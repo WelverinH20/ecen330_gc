@@ -129,7 +129,6 @@ void app_main(void)
 	lcd_fillScreen(BACKGROUND_CLR);
 	lcd_drawString(2,5, "Exercise 1", TITLE_CLR);
 	drawCar(OBJ_X, OBJ_Y);
-	DELAY_MS(WAIT);
 
 	// TODO: Exercise 2 - Draw moving car (Method 1), one pass across display.
 	// Clear the entire display and redraw all objects each iteration.
@@ -141,12 +140,14 @@ void app_main(void)
 		lcd_fillScreen(BACKGROUND_CLR);
 		// Draw title string
 		lcd_drawString(2,5, "Exercise 2", TITLE_CLR);
+		char pos_str[20];
+		snprintf(pos_str, sizeof(pos_str), "%ld", x);
+		lcd_drawString(2, LCD_H - 24, pos_str, STATUS_CLR);
 		// Draw car at current x and y cord
 		drawCar(x, OBJ_Y);
 		// Animation delay
 		DELAY_MS(DELAY_EX3);
 	}
-	DELAY_MS(WAIT);
 	// TODO: Exercise 3 - Draw moving car (Method 2), one pass across display.
 	// Move by erasing car at old position, then redrawing at new position.
 	// Objects that don't change or move are drawn once.
@@ -155,7 +156,12 @@ void app_main(void)
 	for (coord_t x = -CAR_W; x <= LCD_W; x += OBJ_MOVE)
 	{
 		// Draw car at current x and y cord
+		char pos_str[20];
+		snprintf(pos_str, sizeof(pos_str), "%ld", x);
+		lcd_fillRect(0,LCD_H-30,50,50,BACKGROUND_CLR);
+		lcd_drawString(2, LCD_H - 24, pos_str, STATUS_CLR);
 		drawCar(x, OBJ_Y);
+		
 		// Animation delay
 		DELAY_MS(DELAY_EX3);
 		// Erase car old position
@@ -164,7 +170,6 @@ void app_main(void)
 			lcd_fillRect(x, OBJ_Y, CAR_W, CAR_H, BACKGROUND_CLR);
 		}
 	}
-	DELAY_MS(WAIT);
 
 	// TODO: Exercise 4 - Draw moving car (Method 3), one pass across display.
 	// First, draw all objects into a cleared, off-screen frame buffer.
@@ -179,13 +184,15 @@ void app_main(void)
 		// draw car to frame buffer at current x and y cord
 		drawCar(x, OBJ_Y);
 		// write buffer to display
+		char pos_str[20];
+		snprintf(pos_str, sizeof(pos_str), "%ld", x);
+		lcd_drawString(2, LCD_H - 24, pos_str, STATUS_CLR);
 		lcd_writeFrame();
+	
 		// delay for animation frame
 		DELAY_MS(DELAY_EX3);
 	}
 	lcd_frameDisable();
-	DELAY_MS(WAIT);
-
 
 	// TODO: Exercise 5 - Draw an animated Pac-Man moving across the display.
 	// Use Pac-Man sprites instead of the car object.
@@ -207,7 +214,7 @@ void app_main(void)
             lcd_drawBitmap(x, OBJ_Y, pac[current_sprite_idx], PAC_W, PAC_H, YELLOW);
             // Display position string at bottom left
             char pos_str[20];
-            snprintf(pos_str, sizeof(pos_str), "X: %ld", x);
+            snprintf(pos_str, sizeof(pos_str), "%ld", x);
             lcd_drawString(2, LCD_H - 24, pos_str, STATUS_CLR);
             // Write frame buffer to display
             lcd_writeFrame();

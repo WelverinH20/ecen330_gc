@@ -1,2 +1,3 @@
 #!/bin/bash
-export IDF_TOOLS_PATH=/opt/esp6; . /opt/esp6/esp-idf/export.sh
+export IDF_TOOLS_PATH="$HOME/.espressif"
+source "$HOME/.espressif/v6.1/esp-idf/export.sh"
