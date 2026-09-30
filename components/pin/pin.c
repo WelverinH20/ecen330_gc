@@ -68,7 +68,7 @@ int32_t pin_reset(pin_num_t pin)
     REG(GPIO_FUNC0_OUT_SEL_CFG_REG + (pin * 4)) = 0x100;
 
     uint32_t io_mux_val = REG(IO_MUX_REG(pin));
-    io_mux_val &= ~(MCU_SEL_M | FUN_DRV_M);
+    io_mux_val &= ~(MCU_SEL_M | FUN_DRV_M | (1U << FUN_WPD));
     io_mux_val |= (2 << MCU_SEL_S) | (2 << FUN_DRV_S) | (1U << FUN_WPU);
     REG(IO_MUX_REG(pin)) = io_mux_val;
 
