@@ -1,22 +1,4 @@
 #include "game.h"
-#include "board.h"
-#include "graphics.h"
-#include "nav.h"
-#include "pin.h"
-#include "hw.h"
-#include "config.h"
-#include "lcd.h"
-
-#define GAME_CENTER_ROW (CONFIG_BOARD_R / 2)
-#define GAME_CENTER_COL (CONFIG_BOARD_C / 2)
-#define GAME_PIN_PRESSED_LEVEL 0
-
-/* Define game and text colors */
-#define GAME_GRID_COLOR WHITE
-#define GAME_X_COLOR RED
-#define GAME_O_COLOR BLUE
-#define GAME_TEXT_COLOR WHITE
-#define GAME_BG_COLOR BLACK
 
 /* Define the game states matching the state diagram */
 typedef enum {
@@ -68,6 +50,7 @@ void game_tick(void) {
         }
         /* Transition from new game to waiting for a mark */
         case new_game_st: {
+            //move to next state
             current_state = wait_mark_st;
             break;
         }
@@ -132,6 +115,10 @@ void game_tick(void) {
         }
         /* Clear screen, draw grid, clear board, reset navigator, and show next player */
         case new_game_st: {
+            // clear com buffer
+            uint8_t dummy;
+            while (com_read(&dummy, 1) > 0) {
+
             lcd_fillScreen(GAME_BG_COLOR);
             graphics_drawGrid(GAME_GRID_COLOR);
             board_clear();
@@ -144,29 +131,37 @@ void game_tick(void) {
         }
         /* Update joystick navigator position, clear old highlight, and draw new highlight */
         case wait_mark_st: {
-            nav_tick();
-            nav_get_loc(&row, &col);
-            
-            /* If position changed, clear the old highlight box by redrawing grid/background */
-            if (row != prev_row || col != prev_col) {
-                graphics_drawGrid(GAME_GRID_COLOR);
-                // Redraw any existing marks that might have been crossed by grid lines
-                for (int8_t r = 0; r < CONFIG_BOARD_R; r++) {
-                    for (int8_t c = 0; c < CONFIG_BOARD_C; c++) {
-                        if (board_get(r, c) == X_m) {
-                            graphics_drawX(r, c, GAME_X_COLOR);
-                        } else if (board_get(r, c) == O_m) {
-                            graphics_drawO(r, c, GAME_O_COLOR);
-                        }
+            /* 1. Check if local Button A is pressed */
+            if (pin_get_level(HW_BTN_A) == GAME_PIN_PRESSED_LEVEL) {
+                nav_get_loc(&row, &col);
+                /* Verify if the selected location is empty/valid before transitioning */
+                if (board_get(row, col) == no_m) {
+                    // Encode location: row in upper 4 bits, col in lower 4 bits
+                    uint8_t move_byte = ((row & 0x0F) << 4) | (col & 0x0F);
+                    com_write(&move_byte, 1);
+                    
+                    current_state = mark_st;
+                }
+            } 
+            else {
+                /* 2. Check if a move byte has been received from the remote controller */
+                uint8_t rx_byte = 0;
+                if (com_read(&rx_byte, 1) > 0) {
+                    // Unpack row and column
+                    row = (rx_byte >> 4) & 0x0F;
+                    col = rx_byte & 0x0F;
+
+                    // Check validity of the mark location on the receiving side
+                    if (board_get(row, col) == no_m) {
+                        // Temporarily update navigator location so mark_st uses the received coords
+                        nav_set_loc(row, col);
+                        current_state = mark_st;
                     }
                 }
-                prev_row = row;
-                prev_col = col;
             }
-            
-            graphics_drawHighlight(row, col, GAME_GRID_COLOR);
             break;
         }
+        
         /* Place mark on board, draw X/O, check win/draw, and update player turn */
         case mark_st: {
             nav_get_loc(&row, &col);
@@ -217,4 +212,4 @@ void game_tick(void) {
             break;
         }
     }
-}
+}}
