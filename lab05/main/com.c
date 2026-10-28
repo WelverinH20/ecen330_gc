@@ -1,5 +1,7 @@
 #include "com.h"
 
+uint8_t src[NET_ALEN];
+
 int32_t com_init(void) {
     // 1. Initialize the Wi-Fi network wrapper
     if (net_init() != 0) {
@@ -12,7 +14,7 @@ int32_t com_init(void) {
     }
 
     // 3. Print the required status message to the LCD
-    graphics_drawMessage("Waiting to join group...", GAME_TEXT_COLOR, GAME_BG_COLOR);
+    graphics_drawMessage("Waiting to join group...", CONFIG_MESS_CLR, CONFIG_BACK_CLR);
 
     // 4. Wait 4 seconds to allow controllers to pair
     vTaskDelay(pdMS_TO_TICKS(4000));
@@ -35,5 +37,5 @@ int32_t com_write(const void *buf, uint32_t size) {
 
 int32_t com_read(void *buf, uint32_t size) {
     // Non-blocking read using the underlying net receive function
-    return net_recv(NULL, buf, size, 0);
+    return net_recv(src, buf, size, 0);
 }

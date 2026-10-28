@@ -22,8 +22,6 @@
 #define GAME_GRID_COLOR WHITE
 #define GAME_X_COLOR RED
 #define GAME_O_COLOR BLUE
-#define GAME_TEXT_COLOR WHITE
-#define GAME_BG_COLOR BLACK
 
 // Initialize the game logic.
 void game_init(void);
