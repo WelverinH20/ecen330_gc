@@ -2,15 +2,6 @@
 #define COM_H_
 
 #include <stdint.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "hw.h"
-#include "lcd.h"
-#include "net.h"
-#include "graphics.h"
-#include "config.h"
-#include "game.h"
-
 // This component is a wrapper around a lower-level communication
 // method such as a serial port (UART), Bluetooth, or WiFi. The
 // complexities of establishing a communication channel and sending

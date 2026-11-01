@@ -1,6 +1,27 @@
 #include "game.h"
 
-/* Define the game states matching the state diagram */
+/* Include nessisary headers */
+#include "board.h"
+#include "graphics.h"
+#include "nav.h"
+#include "pin.h"
+#include "hw.h"
+#include "config.h"
+#include "lcd.h"
+#include "com.h"
+
+
+// Define constants for game center and button press level
+#define GAME_CENTER_ROW (CONFIG_BOARD_R / 2)
+#define GAME_CENTER_COL (CONFIG_BOARD_C / 2)
+#define GAME_PIN_PRESSED_LEVEL 0
+
+/* Define game and text colors */
+#define GAME_GRID_COLOR WHITE
+#define GAME_X_COLOR RED
+#define GAME_O_COLOR BLUE
+
+/* Game states */
 typedef enum {
     init_st,
     new_game_st,
@@ -12,7 +33,7 @@ typedef enum {
     wait_start_release_st
 } game_state_t;
 
-/* Pending message buffer to defer heavy text draws */
+/* Pending message buffer to reduce WCET */
 typedef enum {
     MSG_NONE,
     MSG_X_WINS,
@@ -47,7 +68,7 @@ void game_tick(void) {
     int8_t row = 0;
     int8_t col = 0;
 
-    /* 1. State transitions & Discrete Actions */
+    /* 1. State transitions*/
     switch (currentState) {
         case init_st: {
             currentState = new_game_st;
@@ -181,8 +202,7 @@ void game_tick(void) {
     /* 2. Continuous / Passive State Actions */
     switch (currentState) {
         case wait_mark_st: {
-            // Joystick tracking: Only erase old cursor & draw new cursor.
-            // DO NOT redraw the entire board grid or pieces.
+            // Joystick tracking: erase old cursor & draw new cursor.
             nav_tick();
             nav_get_loc(&row, &col);
             
