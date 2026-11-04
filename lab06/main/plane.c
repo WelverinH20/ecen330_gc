@@ -19,11 +19,13 @@ struct plane_t{
     coord_t x;
     coord_t y;
     uint32_t  idle_counter; //track respawn ticks
+    int8_t final_position;
     bool missile_launched;   //Ensures 1 missle per flight
     bool explode_me;        //Flag to  indicate plane should explode
+    
 };
 
-// Plane State Machine Instance, File scope only
+// Plane State Machine Instance, Missile pointer, File scope only
 static struct plane_t plane;
 static missile_t *plane_missile_pointer = NULL;
 
@@ -34,6 +36,7 @@ void plane_init(missile_t *plane_missile){
     plane.x = LCD_W;
     plane.y = LCD_H/4;
     plane.idle_counter = 0;
+    plane.final_position = -40;
     plane.missile_launched = false;
     plane.explode_me = false;
 }
@@ -56,14 +59,14 @@ void plane_tick(void){
 
         // Wait for respawn timer to expire (4 seconds default)
         case IDLE_ST:
-            if (plane.idle_counter >= CONFIG_PLANE_IDLE_TIME_SECONDS){
+            if (plane.idle_counter >= CONFIG_PLANE_IDLE_TIME_TICKS){
                 plane.current_state =  FLYING_ST;
             };
             break;
         
         // Transition back to idle if plane is destoryed or off screen
         case FLYING_ST:
-            if (plane.explode_me || plane.x < 0){
+            if (plane.explode_me || plane.x < plane.final_position){
                 plane.current_state = IDLE_ST;
             };
             break;
@@ -81,7 +84,6 @@ void plane_tick(void){
             break;
         
         // Handle idle timing
-        //TODO verify idle counter is  incramenting propperly
         case IDLE_ST:
             if (plane.idle_counter ==  0){
                 plane.x = LCD_W;
@@ -105,7 +107,7 @@ void plane_tick(void){
                              plane.x + CONFIG_PLANE_WIDTH, plane.y + CONFIG_PLANE_HEIGHT / 2, 
                              CONFIG_COLOR_PLANE);
 
-            // Launch the single plane missile when reaching roughly halfway across the screen[cite: 9, 15]
+            // Launch one missle at mid point
             if (!plane.missile_launched && plane.x <= LCD_W / 2) {
                 if (plane_missile_pointer != NULL && missile_is_idle(plane_missile_pointer)) {
                     missile_launch_plane(plane_missile_pointer, plane.x, plane.y);
