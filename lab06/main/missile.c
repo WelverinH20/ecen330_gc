@@ -223,7 +223,13 @@ void missile_tick(missile_t *missile) {
             if (missile->radius > CONFIG_EXPLOSION_MAX_RADIUS) {
                 missile->radius = CONFIG_EXPLOSION_MAX_RADIUS;
             }
-            lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_ENEMY_MISSILE);
+            if (missile->type == MISSILE_TYPE_ENEMY){
+                lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_ENEMY_MISSILE);
+            }else if (missile->type == MISSILE_TYPE_PLANE){
+                lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_PLANE_MISSILE);
+            }else if (missile->type == MISSILE_TYPE_PLAYER){
+                lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_PLAYER_MISSILE);
+            }
             break;
         }
 
@@ -232,7 +238,13 @@ void missile_tick(missile_t *missile) {
             if (missile->radius < 0.0f) {
                 missile->radius = 0.0f;
             }
-            lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_ENEMY_MISSILE);
+            if (missile->type == MISSILE_TYPE_ENEMY){
+                lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_ENEMY_MISSILE);
+            }else if (missile->type == MISSILE_TYPE_PLANE){
+                lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_PLANE_MISSILE);
+            }else if (missile->type == MISSILE_TYPE_PLAYER){
+                lcd_fillCircle(missile->x_current, missile->y_current, (int16_t)missile->radius, CONFIG_COLOR_PLAYER_MISSILE);
+            }
             break;
         }
 
